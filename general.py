@@ -43,6 +43,20 @@ def calc_grad(X, y, theta):
     grad = accum_term/m
     return grad
 
+def grad_check(X, y, theta, epsilon):
+    n = np.size(theta,0)
+    ep_mat = np.identity(n)*epsilon
+    mat_grad = calc_grad(X, y, theta)
+    num_grad = np.zeros((n,1))
+    for i in range(0,n):
+        ep_vec = ep_mat[:,[i]]
+        J_hi = calc_cost(X, y, theta+ep_vec)
+        J_lo = calc_cost(X, y, theta-ep_vec)
+        num_grad[i,0] = (J_hi-J_lo)/(2*epsilon)
+    print(mat_grad)
+    print(num_grad)
+
+    
 
 
 
