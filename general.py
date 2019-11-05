@@ -25,33 +25,40 @@ def add_bias(X):
     X_bias = np.hstack([ones, X])
     return X_bias
 
-def calc_cost(X, y, theta):
+def calc_cost(X, y, theta, reg_const):
     """Calculates cost across all m examples of a dataset"""
     m = np.size(X,0)
     hypo = np.matmul(X, theta) # (m*n)*(n*1) = m*1
     err = hypo - y
     sqr_err = np.power(err, 2)
-    cost = (np.sum(sqr_err))/(2*m)
+    sum_sqr_err = np.sum(sqr_err)
+
+    temp_theta = np.copy(theta)
+    temp_theta[0] = 0
+    temp_theta = temp_theta**2
+    reg_term = reg_const*np.sum(temp_theta)
+
+    cost = (sum_sqr_err + reg_term)/(2*m)
     return cost
 
-def calc_grad(X, y, theta):
+def calc_grad(X, y, theta, reg_const):
     """Calculates cost across all m examples of a dataset"""
     m = np.size(X,0)
     hypo = np.matmul(X, theta) # (m*n)*(n*1) = m*1
     err = hypo - y # m*1
     accum_term = np.matmul(np.transpose(X), err) # (4*m)*(m*1) = 4*1
-    grad = accum_term/m
+    grad = (accum_term + reg_const*theta)/m
     return grad
 
-def grad_check(X, y, theta, epsilon):
+def grad_check(X, y, theta, epsilon, reg_const):
     n = np.size(theta,0)
     ep_mat = np.identity(n)*epsilon
-    mat_grad = calc_grad(X, y, theta)
+    mat_grad = calc_grad(X, y, theta, reg_const)
     num_grad = np.zeros((n,1))
     for i in range(0,n):
         ep_vec = ep_mat[:,[i]]
-        J_hi = calc_cost(X, y, theta+ep_vec)
-        J_lo = calc_cost(X, y, theta-ep_vec)
+        J_hi = calc_cost(X, y, theta+ep_vec, reg_const)
+        J_lo = calc_cost(X, y, theta-ep_vec, reg_const)
         num_grad[i,0] = (J_hi-J_lo)/(2*epsilon)
     print(mat_grad)
     print(num_grad)

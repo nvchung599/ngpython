@@ -5,14 +5,10 @@ from general import *
 toggle = 2
 
 if toggle == 1:
-    y = 9
-    print(y)
-    arr = np.array([])
-    arr = np.append(arr, y)
-    arr = np.append(arr, y)
-    arr = np.append(arr, y)
-    print(arr.shape)
-    print(arr)
+    x = np.ones((5,1))
+    y = np.ones((5,1))
+    z = np.hstack([x, y])
+    print(z)
 
 
 if toggle == 2:
@@ -41,11 +37,11 @@ if toggle == 2:
     dJ_stable = 0.000001
     J_history = []
     alpha = 0.1
-    reg_const = 10
+    reg_const = 0
     
     while it<it_max and dJ_current>dJ_stable: 
-        J_history = np.append(J_history, calc_cost(X, y, theta))
-        grad = calc_grad(X, y, theta)
+        J_history = np.append(J_history, calc_cost(X, y, theta, reg_const))
+        grad = calc_grad(X, y, theta, reg_const)
         if it>0:
             dJ_current = J_history[it-1] - J_history[it]
         it = it+1
@@ -57,9 +53,9 @@ if toggle == 2:
 
 
     #gradient checking with toggle
-    if 1 == 0:
+    if 1 == 1:
         epsilon = 0.01
-        grad_check(X, y, theta, epsilon)
+        grad_check(X, y, theta, epsilon, reg_const)
 
     plt.title('J History')
     plt.xlabel('iteration')
