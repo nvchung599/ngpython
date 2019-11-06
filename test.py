@@ -11,19 +11,26 @@ if toggle == 1:
     x, y = parse_data('1.01. Simple linear regression.csv')
     x_train, y_train, x_test, y_test, x_cv, y_cv = split_data(x, y)
 
-    deg_vec = np.array([1, 2])
-    reg_vec = np.array([0.1, 1, 10])
-
-    deg_qty = np.size(deg_vec, 0)
+    max_deg = 2
+    deg_feat_list = init_deg_feat_list(x,max_deg)
+    reg_vec = np.array([0.1, 1])
     reg_qty = np.size(reg_vec, 0)
 
-    theta_mat = init_nested_list(deg_qty, reg_qty)
-    J_mat = np.zeros((deg_qty, reg_qty))
+    theta_nlist = init_nested_list(max_deg, reg_qty)
+    J_mat = np.zeros((max_deg, reg_qty))
 
-    for i in range(0, deg_qty):
+
+    #TODO MOD_DEG -> NORMALIZE -> SPLIT
+    #TODO 1. CONSTRUCT LIST OF X MATRICES OF INCREASING POWER
+    #TODO 2. NORMALIZE EVERY COMPONENT OF THAT LIST
+    #TODO 3. SPLIT COMPONENTS OF THAT LIST INTO COMPONENTS OF A NESTED LIST
+
+
+    for i in range(0, max_deg):
         for j in range(0, reg_qty):
-            X = mod_degree(x_test, i+1)
-            theta = construct_theta(X)
+            #TODO populate theta_nlist with optimized theta values, based on deg and reg
+            #TODO populate J_mat with optimized cost values, based on deg and reg
+            foo = "bar"
 
 
 if toggle == 2:

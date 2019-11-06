@@ -17,8 +17,8 @@ def split_data(x, y):
     m = np.size(x, 0)
     partition_one = int(round(m*0.6))
     partition_two = int(round(m*0.8))
-    x_train, x_test, x_cv = x[:partition_one], x[partition_one:partition_two], x[partition_two:]
-    y_train, y_test, y_cv = y[:partition_one], y[partition_one:partition_two], y[partition_two:]
+    x_train, x_test, x_cv = x[:partition_one,:], x[partition_one:partition_two,:], x[partition_two:,:]
+    y_train, y_test, y_cv = y[:partition_one,:], y[partition_one:partition_two,:], y[partition_two:,:]
     return x_train, y_train, x_test, y_test, x_cv, y_cv
 
 def init_nested_list(rows, cols):
@@ -40,6 +40,14 @@ def mod_degree(x, deg):
             add_me = np.copy(x)**i
             X = np.hstack([X, add_me])
     return X
+
+def init_nested_list_data(x, max_deg):
+    """returns a list populated with matrices of increasing degree based on x"""
+    deg_feat_list = [None] * max_deg
+    for i in range(0, max_deg):
+        deg_feat_list[i] = mod_degree(x, i+1)
+    return deg_feat_list
+
 
 def construct_theta(X):
     """random inits a theta vector of compatible size with X.
