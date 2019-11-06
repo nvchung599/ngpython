@@ -1,6 +1,52 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+def parse_data(path):
+    """extracts csv data and cleans it up"""
+    data = np.genfromtxt(path, delimiter=',')
+    x = data[:,0]
+    y = data[:,1]
+    x = x[~np.isnan(x)]
+    y = y[~np.isnan(y)]
+    x = x.reshape(-1,1)
+    y = y.reshape(-1,1)
+    return (x,y)
+
+def split_data(x, y):
+    """splits x and y data 60/20/20. accepts arbitrary dataset sizes."""
+    m = np.size(x, 0)
+    partition_one = int(round(m*0.6))
+    partition_two = int(round(m*0.8))
+    x_train, x_test, x_cv = x[:partition_one], x[partition_one:partition_two], x[partition_two:]
+    y_train, y_test, y_cv = y[:partition_one], y[partition_one:partition_two], y[partition_two:]
+    return x_train, y_train, x_test, y_test, x_cv, y_cv
+
+def init_nested_list(rows, cols):
+    """initializes an empty (None) nested list/matrix. To be populated with
+    vectors of varying lengths (theta vectors)
+    note: to access... 2dlist[row][col]"""
+    out_list = [None] * rows
+    in_list = [None] * cols
+    for i in range(0, rows):
+        out_list[i] = in_list
+    return out_list
+
+def mod_degree(x, deg):
+    """if degree is specified to be >1, creates additional features and
+    constructs the matrix X"""
+    X = np.copy(x)
+    if deg > 1:
+        for i in range(2, deg+1):
+            add_me = np.copy(x)**i
+            X = np.hstack([X, add_me])
+    return X
+
+def construct_theta(X):
+    """random inits a theta vector of compatible size with X.
+    call this AFTER bias has been added to X"""
+    n_plus_one = np.size(X,1)
+    theta = np.random.rand(n_plus_one, 1)
+    return theta
 
 def normalize(X):
     """normalizes every feature column in the X matrix wrt mean and stdev
@@ -51,6 +97,8 @@ def calc_grad(X, y, theta, reg_const):
     return grad
 
 def grad_check(X, y, theta, epsilon, reg_const):
+    """numerically calculates parameter gradients for the first learning step.
+    prints side by side with matrix-calculated gradients for verification"""
     n = np.size(theta,0)
     ep_mat = np.identity(n)*epsilon
     mat_grad = calc_grad(X, y, theta, reg_const)
