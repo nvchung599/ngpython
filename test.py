@@ -1,106 +1,84 @@
-import numpy as np
-from matplotlib import pyplot as plt
-from general import *
+from theta_optimizer import *
 
-toggle = 0
+toggle = 1
 
 if toggle == 0:
-    x = np.arange(1,11)
-    x = x.reshape(-1,1)
-    my_list = gen_degree_cases(x, 2)
-    my_list = normalize_list(my_list)
-
-    deg_set_data_nlist = split_into_nlist(my_list)
-
-            
+    foo = "bar"
 
 if toggle == 1:
     x, y = parse_data('1.01. Simple linear regression.csv')
 
-    max_deg = 2
-    deg_feat_list = init_deg_feat_list(x,max_deg)
-    reg_vec = np.array([0.1, 1])
-    reg_qty = np.size(reg_vec, 0)
+    max_deg = 3
+    deg_data_list = gen_degree_cases(x, max_deg)
+    for i in range(0, len(deg_data_list)):
+        deg_data_list[i] = normalize(deg_data_list[i])
+        deg_data_list[i] = add_bias(deg_data_list[i])
+    deg_set_data_nlist = split_into_nlist(deg_data_list)
+    #TODO SPLIT Y DATA INTO LIST
+    tr_label, cv_label, te_label = split_data(y)
+    set_label_list = [tr_label, cv_label, te_label]
 
-    deg_reg_theta_nlist = init_nested_list(max_deg, reg_qty)
-    J_mat_tr = np.zeros((max_deg, reg_qty))
-    J_mat_cv = np.zeros((max_deg, reg_qty))
-    J_mat_te = np.zeros((max_deg, reg_qty))
+    reg_const_list = [0.1, 1, 10]
+    deg_reg_theta_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
+    deg_reg_Jtr_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
+    deg_reg_Jcv_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
+    deg_reg_Jte_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
 
-    
+    #deg_set_data_nlist      2x3
+    #deg_reg_theta_nlist     2x2
 
-    #TODO MOD_DEG -> NORMALIZE -> SPLIT
-    #TODO 1. CONSTRUCT LIST OF X MATRICES OF INCREASING POWER
-    #TODO 2. NORMALIZE EVERY COMPONENT OF THAT LIST
-    #TODO 3. SPLIT COMPONENTS OF THAT LIST INTO COMPONENTS OF A NESTED LIST
+    my_opter = ThetaOptimizer(100, 0.000001, 0.1)
+
+    for i in range(0, len(deg_data_list)):
+        for j in range(0, len(reg_const_list)):
+            cur_X = deg_set_data_nlist[i][0]
+            cur_y = set_label_list[0]
+            cur_reg_const = reg_const_list[j]
+            cur_theta, cur_cost = my_opter.optimize_theta(cur_X, cur_y, cur_reg_const)
+            deg_reg_theta_nlist[i][j] = cur_theta
+            deg_reg_Jtr_nlist[i][j] = cur_cost
 
 
-    for i in range(0, max_deg):
-        for j in range(0, reg_qty):
-            #TODO populate theta_nlist with optimized theta values, based on deg and reg
-            #TODO populate J_mat with optimized cost values, based on deg and reg
-            foo = "bar"
+    i_min = None
+    j_min = None
+    cost_min = 9999
+    for i in range(0, len(deg_data_list)):
+        for j in range(0, len(reg_const_list)):
+            cur_X = deg_set_data_nlist[i][1]
+            cur_y = set_label_list[1]
+            cur_reg_const = reg_const_list[j]
+            cur_theta = deg_reg_theta_nlist[i][j]
+            cur_cost = calc_cost(cur_X, cur_y, cur_theta, cur_reg_const)
+            deg_reg_Jcv_nlist[i][j] = cur_cost
+            if cur_cost < cost_min:
+                cost_min = cur_cost
+                i_min = i
+                j_min = j
 
 
+    print(deg_reg_Jtr_nlist)
+    print(deg_reg_Jcv_nlist)
+
+    print('optimal deg-reg combination')
+    print('index i=%i, index j=%i' % (i_min, j_min))
+    print('degree=%i, reg_const=%d' % (i_min+1, reg_const_list[j_min]))
+    print('cost_min=%d' % cost_min)
+
+
+
+
+# SINGLE DEGREE/LAMBDA OPTIMIZATION
 if toggle == 2:
-
-    #TODO PART 1
-
-    #get data from csv
-    data = np.genfromtxt('1.01. Simple linear regression.csv', delimiter=',')
-    x = data[:,0]
-    y = data[:,1]
-
-    #cleanup data
-    x = x[~np.isnan(x)]
-    y = y[~np.isnan(y)]
-    x = x.reshape(-1,1)
-    y = y.reshape(-1,1)
-
-    #construct feature matrix, normalize, bias
-    X = np.hstack((x,np.power(x,2),np.power(x,0.5)))
-
+    # get data from csv
+    x, y = parse_data('1.01. Simple linear regression.csv')
+    # construct feature matrix, normalize, bias
+    X = mod_degree(x, 5)
     X = normalize(X)
     X = add_bias(X)
-
-    theta = np.random.rand(4,1)
-
-    #TODO PART 2, input (X, y, theta[optional], lambda))
-    
-    it = 0
-    it_max = 100
-    dJ_current = 999
-    dJ_stable = 0.000001
-    J_history = []
-    alpha = 0.1
-    reg_const = 0
-    
-    while it<it_max and dJ_current>dJ_stable: 
-        J_history = np.append(J_history, calc_cost(X, y, theta, reg_const))
-        grad = calc_grad(X, y, theta, reg_const)
-        if it>0:
-            dJ_current = J_history[it-1] - J_history[it]
-        it = it+1
-        theta = theta-alpha*grad
-    print('theta_optimized:')
-    print(theta)
-    print('J_history:')
-    print(J_history)
-
-
-    #gradient checking with toggle
-    if 1 == 1:
-        epsilon = 0.01
-        grad_check(X, y, theta, epsilon, reg_const)
-
-    plt.title('J History')
-    plt.xlabel('iteration')
-    plt.ylabel('cost')
-    plt.plot(J_history)
-    plt.show()
-
-    #TODO add regularization functions, 
-
+    # train theta
+    my_opter = ThetaOptimizer(100, 0.000001, 0.1)
+    theta, cost = my_opter.optimize_theta(X, y, 1)
+    my_opter.plot_last()
 
 
 

@@ -2,7 +2,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 def parse_data(path):
-    """extracts csv data and cleans it up"""
+    """extracts csv data and cleans it up
+    input data must be 2D (x and y)
+    output must be and m*1 numpy matrix/vector, homogenous, of same shape/size"""
     data = np.genfromtxt(path, delimiter=',')
     x = data[:,0]
     y = data[:,1]
@@ -10,6 +12,8 @@ def parse_data(path):
     y = y[~np.isnan(y)]
     x = x.reshape(-1,1)
     y = y.reshape(-1,1)
+    if x.shape != y.shape:
+        raise ValueError('check input data!')
     return (x,y)
 
 def split_data(data):
