@@ -12,24 +12,37 @@ def parse_data(path):
     y = y.reshape(-1,1)
     return (x,y)
 
-def split_data(x, y):
-    """splits x and y data 60/20/20. accepts arbitrary dataset sizes."""
-    m = np.size(x, 0)
-    partition_one = int(round(m*0.6))
-    partition_two = int(round(m*0.8))
-    x_train, x_test, x_cv = x[:partition_one,:], x[partition_one:partition_two,:], x[partition_two:,:]
-    y_train, y_test, y_cv = y[:partition_one,:], y[partition_one:partition_two,:], y[partition_two:,:]
-    return x_train, y_train, x_test, y_test, x_cv, y_cv
+def split_data(data):
+    """splits a data matrix 60/20/20. accepts arbitrary dataset sizes m and n."""
+    m = np.size(data, 0)
+    p1 = int(round(m*0.6))
+    p2 = int(round(m*0.8))
+    train = np.copy(data[:p1,:])
+    test = np.copy(data[p1:p2,:])
+    cv = np.copy(data[p2:,:])
+    return train, cv, test
 
 def init_nested_list(rows, cols):
     """initializes an empty (None) nested list/matrix. To be populated with
     vectors of varying lengths (theta vectors)
     note: to access... 2dlist[row][col]"""
     out_list = [None] * rows
-    in_list = [None] * cols
     for i in range(0, rows):
-        out_list[i] = in_list
+        out_list[i] = [None] * cols #in_list
     return out_list
+
+def split_into_nlist(my_list):
+    """input a list of X matrices of increasing degrees.
+    output a nested list of X matrices of increasing degrees, but split into
+    training, cross-validation, and test sets. rows = degree. cols = set"""
+    degrees = len(my_list)
+    deg_set_data_nlist = init_nested_list(degrees, 3)
+    for i in range(0, degrees):
+        train, cv, test = split_data(my_list[i])
+        deg_set_data_nlist[i][0] = train
+        deg_set_data_nlist[i][1] = cv
+        deg_set_data_nlist[i][2] = test
+    return deg_set_data_nlist
 
 def mod_degree(x, deg):
     """if degree is specified to be >1, creates additional features and
@@ -41,12 +54,12 @@ def mod_degree(x, deg):
             X = np.hstack([X, add_me])
     return X
 
-def init_nested_list_data(x, max_deg):
-    """returns a list populated with matrices of increasing degree based on x"""
-    deg_feat_list = [None] * max_deg
-    for i in range(0, max_deg):
-        deg_feat_list[i] = mod_degree(x, i+1)
-    return deg_feat_list
+def gen_degree_cases(x, max_deg):
+    """returns a list of numpy matrices - X matrices of increasing degrees"""
+    my_list = []
+    for i in range(1, max_deg+1):
+        my_list.append(mod_degree(x, i))
+    return my_list
 
 
 def construct_theta(X):
@@ -61,15 +74,21 @@ def normalize(X):
     note: apply this function BEFORE adding a ones column
     note: shape of matrix should be m*n"""
     n = np.size(X,1)
-    X_norm = np.copy(X)
+    X_norm = np.zeros(X.shape)
     for i in range(0, n):
-        feature_vec = X_norm[:,[i]]
+        feature_vec = np.copy(X[:,[i]])
         my_std = np.std(feature_vec)
         my_mean = np.mean(feature_vec)
-        X_norm[:,[i]] = X_norm[:,[i]] - my_mean
-        X_norm[:,[i]] = np.divide(X_norm[:,[i]],my_std)
+        feature_vec_norm = (feature_vec - my_mean)/my_std
+        X_norm[:,[i]] = feature_vec_norm
     return X_norm
 
+def normalize_list(my_list):
+    """normalizes every element in a list of X matrices"""
+    my_list_norm = []
+    for X in my_list:
+        my_list_norm.append(normalize(X))
+    return my_list_norm
 
 def add_bias(X):
     """Adds a column of ones on the left side of a 2D matrix

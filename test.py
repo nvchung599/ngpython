@@ -2,23 +2,32 @@ import numpy as np
 from matplotlib import pyplot as plt
 from general import *
 
-toggle = 1
+toggle = 0
 
 if toggle == 0:
-    init_nested_list(5,3)
+    x = np.arange(1,11)
+    x = x.reshape(-1,1)
+    my_list = gen_degree_cases(x, 2)
+    my_list = normalize_list(my_list)
+
+    deg_set_data_nlist = split_into_nlist(my_list)
+
+            
 
 if toggle == 1:
     x, y = parse_data('1.01. Simple linear regression.csv')
-    x_train, y_train, x_test, y_test, x_cv, y_cv = split_data(x, y)
 
     max_deg = 2
     deg_feat_list = init_deg_feat_list(x,max_deg)
     reg_vec = np.array([0.1, 1])
     reg_qty = np.size(reg_vec, 0)
 
-    theta_nlist = init_nested_list(max_deg, reg_qty)
-    J_mat = np.zeros((max_deg, reg_qty))
+    deg_reg_theta_nlist = init_nested_list(max_deg, reg_qty)
+    J_mat_tr = np.zeros((max_deg, reg_qty))
+    J_mat_cv = np.zeros((max_deg, reg_qty))
+    J_mat_te = np.zeros((max_deg, reg_qty))
 
+    
 
     #TODO MOD_DEG -> NORMALIZE -> SPLIT
     #TODO 1. CONSTRUCT LIST OF X MATRICES OF INCREASING POWER
@@ -35,7 +44,7 @@ if toggle == 1:
 
 if toggle == 2:
 
-    #TODO THIS ALL BELONGS IN MAIN OR SPLIT DATA
+    #TODO PART 1
 
     #get data from csv
     data = np.genfromtxt('1.01. Simple linear regression.csv', delimiter=',')
@@ -48,17 +57,15 @@ if toggle == 2:
     x = x.reshape(-1,1)
     y = y.reshape(-1,1)
 
-
-
-    #TODO REPLACE WITH MOD POWER
     #construct feature matrix, normalize, bias
     X = np.hstack((x,np.power(x,2),np.power(x,0.5)))
 
-    #TODO MAIN
     X = normalize(X)
     X = add_bias(X)
 
     theta = np.random.rand(4,1)
+
+    #TODO PART 2, input (X, y, theta[optional], lambda))
     
     it = 0
     it_max = 100
