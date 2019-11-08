@@ -6,6 +6,7 @@ def parse_data(path):
     input data must be 2D (x and y)
     output must be and m*1 numpy matrix/vector, homogenous, of same shape/size"""
     data = np.genfromtxt(path, delimiter=',')
+    np.random.shuffle(data)
     x = data[:,0]
     y = data[:,1]
     x = x[~np.isnan(x)]
@@ -142,8 +143,19 @@ def grad_check(X, y, theta, epsilon, reg_const):
     print(mat_grad)
     print(num_grad)
 
-    
-
-
+def map_scatter(list_x, list_y, nlist):
+    """maps python lists and nested list into 3 numpy vectors for scatter plotting"""
+    el_qty = len(list_x)*len(list_y) 
+    x = np.zeros(el_qty)
+    y = np.zeros(el_qty)
+    z = np.zeros(el_qty)
+    k = 0
+    for i in range(len(list_x)):
+        for j in range(len(list_y)):
+            x[k] = list_x[i]
+            y[k] = list_y[j]
+            z[k] = nlist[i][j]
+            k = k + 1
+    return x, y, z
 
 

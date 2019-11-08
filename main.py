@@ -1,24 +1,26 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import tkinter
 
-data = np.genfromtxt('1.01. Simple linear regression.csv', delimiter=',')
-print(data.shape)
+data = np.genfromtxt('MacdonellDF.csv', delimiter=',')
 
 np.random.shuffle(data)
 
-x = data[:,0]
-y = data[:,1]
-x_train, x_test, x_cv = x[:45], x[45:65], x[65:]
-y_train, y_test, y_cv = y[:45], y[45:65], y[65:]
+x = data[:,1]
+y = data[:,2]
+x = x[~np.isnan(x)]
+y = y[~np.isnan(y)]
+x = x.reshape(-1, 1)
+y = y.reshape(-1, 1)
 
-print(np.matmul(x,y))
+print(x.shape)
+print(y.shape)
 
+print(data)
 plt.title('demo')
 plt.xlabel('x axis label')
 plt.ylabel('y axis label')
-plt.scatter(x_train, y_train)
-plt.scatter(x_test, y_test)
-plt.scatter(x_cv, y_cv)
+plt.scatter(x, y)
 plt.show()
 
 
