@@ -6,8 +6,18 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 toggle = 1
 
+def my_func(x):
+    y = x ** 2
+    return y
+
 if toggle == 0:
-    foo = "bar"
+    x = np.arange(1,100)
+    y = my_func(x)
+    plt.xlabel('x axis')
+    plt.ylabel('y axis')
+    plt.title('my title')
+    plt.plot(x,y, marker='x')
+    plt.show()
 
 if toggle == 1:
     #x, y = parse_data('1.01. Simple linear regression.csv')
@@ -31,6 +41,11 @@ if toggle == 1:
     set_label_list = [tr_label, cv_label, te_label]
 
     reg_const_list = [0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100]
+    reg_const_list = []
+    for i in range(0,50):
+        reg_const_list.append(i)
+
+
     deg_reg_theta_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
     deg_reg_Jtr_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
     deg_reg_Jcv_nlist = init_nested_list(len(deg_data_list), len(reg_const_list))
@@ -45,7 +60,10 @@ if toggle == 1:
             cur_reg_const = reg_const_list[j]
             cur_theta, cur_cost = my_opter.optimize_theta(cur_X, cur_y, cur_reg_const)
             deg_reg_theta_nlist[i][j] = cur_theta
-            deg_reg_Jtr_nlist[i][j] = cur_cost
+
+            #compare against cv cost
+            deg_reg_Jtr_nlist[i][j] = calc_cost(cur_X, cur_y, cur_theta, 0)
+
 
     i_min = None
     j_min = None
@@ -85,7 +103,11 @@ if toggle == 1:
     ax.set_xlabel('degree')
     ax.set_ylabel('lambda')
     ax.set_zlabel('cv cost')
-    
+
+
+    x, y, z = map_scatter(deg_list, reg_const_list, deg_reg_Jtr_nlist)
+    ax.scatter(x, y, z, marker='x')
+
     plt.show()
 
 
