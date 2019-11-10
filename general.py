@@ -88,6 +88,14 @@ def normalize(X):
         X_norm[:,[i]] = feature_vec_norm
     return X_norm
 
+def get_stats(x):
+    """normalizes every feature column in the X matrix wrt mean and stdev
+    note: apply this function BEFORE adding a ones column
+    note: shape of matrix should be m*n"""
+    my_std = np.std(x)
+    my_mean = np.mean(x)
+    return my_std, my_mean
+
 def normalize_list(my_list):
     """normalizes every element in a list of X matrices"""
     my_list_norm = []

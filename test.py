@@ -6,17 +6,28 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 toggle = 1
 
-def my_func(x):
-    y = x ** 2
+def my_func(x, theta):
+    X = mod_degree(x, 2)
+    print(X.shape)
+    y = np.matmul(X, theta)
+    return y
+
+def calc_hypo(x_plotvec, theta_opt):
+    X = mod_degree(x_plotvec, np.size(theta_opt, 0) - 1)
+    X = normalize(X)
+    X = add_bias(X)
+    y = np.matmul(X, theta_opt)
     return y
 
 if toggle == 0:
     x = np.arange(1,100)
-    y = my_func(x)
+    x = x.reshape(-1,1)
+    theta = np.array([[5],[3]])
+    y = my_func(x, theta)
     plt.xlabel('x axis')
     plt.ylabel('y axis')
     plt.title('my title')
-    plt.plot(x,y, marker='x')
+    plt.plot(x,y)
     plt.show()
 
 if toggle == 1:
@@ -42,7 +53,7 @@ if toggle == 1:
 
     reg_const_list = [0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100]
     reg_const_list = []
-    for i in range(0,50):
+    for i in range(0,10):
         reg_const_list.append(i)
 
 
@@ -90,26 +101,40 @@ if toggle == 1:
     print('degree=%i, reg_const=%f' % (i_min+1, reg_const_list[j_min]))
     print('cost_min=%f' % cost_min)
 
-    deg_list = [] 
+    deg_list = []
     for i in range(1, max_deg+1):
         deg_list.append(i)
-        
-    x, y, z = map_scatter(deg_list, reg_const_list, deg_reg_Jcv_nlist)
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    ax.scatter(x, y, z, marker='o')
-    
-    ax.set_xlabel('degree')
-    ax.set_ylabel('lambda')
-    ax.set_zlabel('cv cost')
+
+    if 1 == 0:
+        x, y, z = map_scatter(deg_list, reg_const_list, deg_reg_Jcv_nlist)
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(x, y, z, marker='o')
+        ax.set_xlabel('degree')
+        ax.set_ylabel('lambda')
+        ax.set_zlabel('cv cost')
+        x, y, z = map_scatter(deg_list, reg_const_list, deg_reg_Jtr_nlist)
+        ax.scatter(x, y, z, marker='x')
+        plt.show()
+
+    if 1 == 1:
+        plt.xlabel('x axis')
+        plt.ylabel('y axis')
+        plt.title('my title')
+        plt.scatter(x, y)
+
+        x_min = np.min(x)
+        x_max = np.max(x)
+        x_plotvec = np.linspace(x_min, x_max, 100)
+        x_plotvec = x_plotvec.reshape(-1,1)
+
+        theta_opt = deg_reg_theta_nlist[i_min][j_min]
 
 
-    x, y, z = map_scatter(deg_list, reg_const_list, deg_reg_Jtr_nlist)
-    ax.scatter(x, y, z, marker='x')
+        hypo_plotvec = calc_hypo(x_plotvec, theta_opt)
 
-    plt.show()
-
+        plt.plot(x_plotvec, hypo_plotvec)
+        plt.show()
 
 # SINGLE DEGREE/LAMBDA OPTIMIZATION
 if toggle == 2:
