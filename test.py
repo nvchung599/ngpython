@@ -4,31 +4,16 @@ from theta_optimizer import *
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
-toggle = 1
+toggle = 0
 
-def my_func(x, theta):
-    X = mod_degree(x, 2)
-    print(X.shape)
-    y = np.matmul(X, theta)
-    return y
 
-def calc_hypo(x_plotvec, theta_opt):
-    X = mod_degree(x_plotvec, np.size(theta_opt, 0) - 1)
-    X = normalize(X)
-    X = add_bias(X)
-    y = np.matmul(X, theta_opt)
-    return y
 
 if toggle == 0:
-    x = np.arange(1,100)
+    x = np.arange(1,30)
     x = x.reshape(-1,1)
-    theta = np.array([[5],[3]])
-    y = my_func(x, theta)
-    plt.xlabel('x axis')
-    plt.ylabel('y axis')
-    plt.title('my title')
-    plt.plot(x,y)
-    plt.show()
+    X = mod_degree(x, 5)
+    partial_X = part_data(X, 50)
+    print(partial_X.shape)
 
 if toggle == 1:
     #x, y = parse_data('1.01. Simple linear regression.csv')

@@ -17,6 +17,14 @@ def parse_data(path):
         raise ValueError('check input data!')
     return (x,y)
 
+
+def part_data(data, percent):
+    m = np.size(data, 0)
+    modifier = percent*0.01
+    index = int(round(m*modifier))
+    data_partial = data[0:index, :]
+    return data_partial
+
 def split_data(data):
     """splits a data matrix 60/20/20. accepts arbitrary dataset sizes m and n."""
     m = np.size(data, 0)
