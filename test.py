@@ -10,7 +10,10 @@ toggle = 0
 
 if toggle == 0:
     x = np.arange(1,30)
+    print(x.shape)
     x = x.reshape(-1,1)
+    print(x)
+    print(x.shape)
     X = mod_degree(x, 5)
     partial_X = part_data(X, 50)
     print(partial_X.shape)
